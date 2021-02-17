@@ -1,0 +1,8 @@
+# ignore config files
+*.json
+
+# ignore compiled python
+*.pyc
+
+# ignore generated repos
+/repos/
