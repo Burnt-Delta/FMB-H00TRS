@@ -21,7 +21,7 @@ class GitFunctions:
         # print all repo names
         output = "Repos: "
         for repo in self.repoList:
-            output = output + repo['Repo'] + ', '
+            output += repo['Repo'] + ', '
         output = output[:-2] # removes last comma
         print(output)
         print("===============================================")

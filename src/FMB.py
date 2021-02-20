@@ -11,4 +11,4 @@ if __name__ == '__main__':
     while True:
         # pulls or clones every repo on the list every 12 hours
         gf.pullRepos()
-        time.sleep(43200)
+        time.sleep(43200) # TODO: once API's hooked up, have this increment depending on if pull had a change
