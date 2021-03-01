@@ -4,6 +4,7 @@
 
 import os
 import jsonParsing as jp
+from github import Github
 
 class GitFunctions:
     # adds config info to class
@@ -13,6 +14,9 @@ class GitFunctions:
 
         # repos
         self.repoList = jp.getRepos()
+
+        # explicit class members
+        self.repoDir = "cd .. & cd repos"
 
         print("Started git functions with following arguments:")
         print("Username: " + self.uname)
@@ -28,8 +32,7 @@ class GitFunctions:
     
     # attempts to pull or clone for each repo in list
     def pullRepos(self):
-        repoDir = "cd .. & cd repos"
-        status = os.system(repoDir)
+        status = os.system(self.repoDir)
 
         # create repos directory if it doesn't exist
         if status == 1:
@@ -37,12 +40,41 @@ class GitFunctions:
             os.system("cd .. & mkdir repos")
         
         for repo in self.repoList:
-            name = repo['Repo']
-            base_url = repo['URL']
+            self.pullRepo(repo)
 
-            print("Repo: " + name)
+    def gitREST(self, timeStamps):
+        g = Github("0ba05bc3a4baea4201e8d54a8a39e2284e7e05dd")
 
-            status = os.system(repoDir + " & cd " + name)
+        if timeStamps:
+            for repo in g.get_user().get_repos():
+                if (repo.pushed_at != timeStamps[repo.name]):
+                    for listRepo in self.repoList:
+                        # If the repo is found in our tracked list
+                        if listRepo['Repo'] == repo.name:
+                            print("Pulling changes for " + repo.name + "...")
+                            self.pullRepo(repo)
+                            break
+
+                timeStamps[repo.name] = repo.pushed_at
+        else:
+            self.pullRepos()
+            for repo in g.get_user().get_repos():
+                timeStamps[repo.name] = repo.pushed_at
+                print("Name: " + repo.name)
+                print("Last Pushed: " + str(timeStamps[repo.name]) + "\n")
+
+        return timeStamps
+
+    def pullRepo(self, repo):
+        name = repo['Repo']
+        base_url = repo['URL']
+
+        print("Repo: " + name)
+            
+        if name == 'FMB-H00TRS':
+            os.system("cd .. & git pull & git status")
+        else:
+            status = os.system(self.repoDir + " & cd " + name)
 
             # if given repo does not exist locally
             if status == 1:
@@ -52,7 +84,8 @@ class GitFunctions:
                 url_parts = base_url.split("github.com")
                 url = url_parts[0] + self.uname + ":" + self.pat + "@github.com" + url_parts[1]
 
-                os.system(repoDir + " & git clone " + url)
-            
-            os.system(repoDir + " & cd " + name + " & git pull & git status")
+                os.system(self.repoDir + " & git clone " + url)
+
+            os.system(self.repoDir + " & cd " + name + " & git pull & git status")
             print()
+
