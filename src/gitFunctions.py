@@ -43,7 +43,7 @@ class GitFunctions:
             self.pullRepo(repo)
 
     def gitREST(self, timeStamps):
-        g = Github(self.PAT)
+        g = Github(self.pat)
 
         if timeStamps:
             for repo in g.get_user().get_repos():
