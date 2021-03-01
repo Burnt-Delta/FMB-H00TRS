@@ -12,26 +12,18 @@ class GitFunctions:
         # authorization
         self.uname, self.pat = jp.getAuth()
 
-        # repos
-        self.repoList = jp.getRepos()
-
         # explicit class members
         self.repoDir = "cd .. & cd repos"
 
         print("Started git functions with following arguments:")
         print("Username: " + self.uname)
         print("PAT: " + self.pat)
-
-        # print all repo names
-        output = "Repos: "
-        for repo in self.repoList:
-            output += repo['Repo'] + ', '
-        output = output[:-2] # removes last comma
-        print(output)
         print("===============================================")
     
-    # attempts to pull or clone for each repo in list
+    # attempts to pull or clone every repo for the user
     def pullRepos(self):
+        g = Github(self.pat)
+        
         status = os.system(self.repoDir)
 
         # create repos directory if it doesn't exist
@@ -39,7 +31,7 @@ class GitFunctions:
             print("Creating directory 'repos'...")
             os.system("cd .. & mkdir repos")
         
-        for repo in self.repoList:
+        for repo in g.get_user().get_repos():
             self.pullRepo(repo)
 
     def gitREST(self, timeStamps):
@@ -66,26 +58,24 @@ class GitFunctions:
         return timeStamps
 
     def pullRepo(self, repo):
-        name = repo['Repo']
-        base_url = repo['URL']
+        name = repo.name
+        base_url = repo.clone_url
 
         print("Repo: " + name)
-            
-        if name == 'FMB-H00TRS':
-            os.system("cd .. & git pull & git status")
-        else:
-            status = os.system(self.repoDir + " & cd " + name)
+        print("-------" + len(name)*"-")
+        
+        status = os.system(self.repoDir + " & cd " + name)
 
-            # if given repo does not exist locally
-            if status == 1:
-                print("Given repo \'" + name + "\' not found. Attempting to clone...")
+        # if given repo does not exist locally
+        if status == 1:
+            print("Given repo \'" + name + "\' not found. Attempting to clone...")
 
-                # insert authentication in to clone url
-                url_parts = base_url.split("github.com")
-                url = url_parts[0] + self.uname + ":" + self.pat + "@github.com" + url_parts[1]
+            # insert authentication in to clone url
+            url_parts = base_url.split("github.com")
+            url = url_parts[0] + self.uname + ":" + self.pat + "@github.com" + url_parts[1]
 
-                os.system(self.repoDir + " & git clone " + url)
+            os.system(self.repoDir + " & git clone " + url)
 
-            os.system(self.repoDir + " & cd " + name + " & git pull & git status")
-            print()
+         os.system(self.repoDir + " & cd " + name + " & git pull & git status")
+         print()
 
