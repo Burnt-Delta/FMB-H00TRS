@@ -12,56 +12,73 @@ class GitFunctions:
         # authorization
         self.uname, self.pat = jp.getAuth()
 
-        # explicit class members
+        # other config
+        self.debugMode = True
         self.repoDir = "cd .. & cd repos"
+        self.repoNames = self.getRepoNames()
 
+        # print init
         print("Started git functions with following arguments:")
-        print("Username: " + self.uname)
-        print("PAT: " + self.pat)
+        self.printConfig()
         print("===============================================")
-    
-    # attempts to pull or clone every repo for the user
-    def pullRepos(self):
-        g = Github(self.pat)
-        
-        status = os.system(self.repoDir)
 
-        # create repos directory if it doesn't exist
+        # make sure repo dir exists
+        status = os.system(self.repoDir)
         if status == 1:
             print("Creating directory 'repos'...")
             os.system("cd .. & mkdir repos")
-        
-        for repo in g.get_user().get_repos():
-            self.pullRepo(repo)
 
-    def gitREST(self, timeStamps):
+    # print the running config & stats
+    def printConfig(self):
+        print("Username: " + self.uname)
+        print("PAT: " + self.pat)
+
+        repoString = ""
+        for repo_name in self.repoNames:
+            repoString += (repo_name + ", ")
+        repoString = repoString[:-2]
+
+        print("Repos: " + repoString)
+
+    # used just for internal logs, probably already deprecated tbh
+    def getRepoNames(self):
+        names = []
         g = Github(self.pat)
 
+        for repo in g.get_user().get_repos():
+            names.append(repo.name)
+
+        return names
+
+    # used by top-level script; refreshes local copies of repos
+    def updateRepos(self, timeStamps):
+        g = Github(self.pat)
+
+        # if we already have timestamps, use them
         if timeStamps:
+            self.debug("Found 'timeStamps'")
             for repo in g.get_user().get_repos():
-                if (repo.pushed_at != timeStamps[repo.name]):
-                    for listRepo in self.repoList:
-                        # If the repo is found in our tracked list
-                        if listRepo['Repo'] == repo.name:
-                            print("Pulling changes for " + repo.name + "...")
-                            self.pullRepo(repo)
-                            break
-
-                timeStamps[repo.name] = repo.pushed_at
+                # If the repo either isn't yet tracked locally or isn't up to date, pull it
+                if (not timeStamps[repo.name] or repo.pushed_at != timeStamps[repo.name]):
+                    timeStamps[repo.name] = repo.pushed_at
+                    self.pullRepo(repo)
+                # Otherwise, we're good
+                else:
+                    print("'" + repo.name + "' is up to date.")
+        # Otherwise, attempt to pull every repo
         else:
-            self.pullRepos()
+            self.debug("'timeStamps' is empty!")
             for repo in g.get_user().get_repos():
                 timeStamps[repo.name] = repo.pushed_at
-                print("Name: " + repo.name)
-                print("Last Pushed: " + str(timeStamps[repo.name]) + "\n")
+                self.pullRepo(repo)
 
-        return timeStamps
 
+    # pulls a repo given its API object
     def pullRepo(self, repo):
         name = repo.name
         base_url = repo.clone_url
 
-        print("Repo: " + name)
+        print("Pulling repo: " + name)
         print("-------" + len(name)*"-")
         
         status = os.system(self.repoDir + " & cd " + name)
@@ -69,13 +86,20 @@ class GitFunctions:
         # if given repo does not exist locally
         if status == 1:
             print("Given repo \'" + name + "\' not found. Attempting to clone...")
+            self.cloneRepo(base_url)
 
-            # insert authentication in to clone url
-            url_parts = base_url.split("github.com")
-            url = url_parts[0] + self.uname + ":" + self.pat + "@github.com" + url_parts[1]
+        os.system(self.repoDir + " & cd " + name + " & git pull & git status")
+        print()
 
-            os.system(self.repoDir + " & git clone " + url)
+    # clones a repo given the clone URL
+    def cloneRepo(self, url):
+         # insert authentication in to clone url
+         url_parts = base_url.split("github.com")
+         url = url_parts[0] + self.uname + ":" + self.pat + "@github.com" + url_parts[1]
+         
+         os.system(self.repoDir + " & git clone " + url)
 
-         os.system(self.repoDir + " & cd " + name + " & git pull & git status")
-         print()
-
+    # prints debug messages
+    def debug(self, string):
+        if self.debugMode:
+            print("DEBUG: " + string)

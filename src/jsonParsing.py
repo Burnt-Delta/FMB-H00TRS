@@ -16,10 +16,3 @@ def getAuth():
     auth = data['auth']
 
     return auth['Username'], auth['PAT']
-
-# returns a list of dicts containing repo info
-def getRepos():
-    data = jsonToDict("config.json")
-    repos = data['repos']
-
-    return repos
