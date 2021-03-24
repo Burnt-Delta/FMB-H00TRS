@@ -53,6 +53,7 @@ class GitFunctions:
     # used by top-level script; refreshes local copies of repos
     def updateRepos(self, timeStamps):
         g = Github(self.pat)
+        hasNew = False
 
         # if we already have timestamps, use them
         if timeStamps:
@@ -60,6 +61,7 @@ class GitFunctions:
             for repo in g.get_user().get_repos():
                 # If the repo either isn't yet tracked locally or isn't up to date, pull it
                 if (not timeStamps[repo.name] or repo.pushed_at != timeStamps[repo.name]):
+                    hasNew = True
                     timeStamps[repo.name] = repo.pushed_at
                     self.pullRepo(repo)
                 # Otherwise, we're good
@@ -67,10 +69,13 @@ class GitFunctions:
                     print("'" + repo.name + "' is up to date.")
         # Otherwise, attempt to pull every repo
         else:
+            hasNew = True
             self.debug("'timeStamps' is empty!")
             for repo in g.get_user().get_repos():
                 timeStamps[repo.name] = repo.pushed_at
                 self.pullRepo(repo)
+
+        return hasNew
 
 
     # pulls a repo given its API object
