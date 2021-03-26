@@ -1,6 +1,5 @@
 # gitFunctions.py - provides git functionality
 # Author: Burnt-Delta
-# TODO: add REST API functionality
 
 import os
 import jsonParsing as jp
@@ -20,6 +19,7 @@ class GitFunctions:
         # print init
         print("Started git functions with following arguments:")
         self.printConfig()
+        self.debug("DEBUG MODE")
         print("===============================================")
 
         # make sure repo dir exists
@@ -28,7 +28,7 @@ class GitFunctions:
             print("Creating directory 'repos'...")
             os.system("cd .. & mkdir repos")
 
-    # print the running config & stats
+    # prints the running config & stats
     def printConfig(self):
         print("Username: " + self.uname)
         print("PAT: " + self.pat)
