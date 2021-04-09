@@ -23,5 +23,25 @@
             Use this form to alter the server's configuration settings.
         </p>
     </div>
+    <div>
+        <form method="post" action="php/attemptConfig.php">
+            <!-- TODO: Dynamic form appearance-->
+            <p>
+                <label>Username: </label>
+                <input type="text" name="uname" required/>
+            </p>
+            <p>
+                <label>Password: </label>
+                <input type="text" name="pword" required />
+            </p>
+            <p>
+                <label>GitHub PAT: </label>
+                <input type="text" name="pat" /> 
+            </p>
+            <p>
+                <input type="submit" />
+            </p>
+        </form>
+    </div>
 </body>
 </html>
