@@ -9,4 +9,3 @@ Goals for future implementation:
 - FTP Server
 - Discord bot
 - Wireshark tracking
-- Web Interface
