@@ -1,0 +1,11 @@
+﻿body {
+    font-family: Verdana, Arial, sans-serif;
+    font-size: 100%;
+    background-color: #ECEFF1;
+    text-align: center;
+}
+nav ul li {
+    list-style: none;
+    display: inline;
+    padding-right:3em;
+}
