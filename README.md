@@ -1,9 +1,11 @@
 # FMB-H00TRS
 Codebase for my personal server.
 
-Current efforts are going towards automating git in order to keep local up-to-date repo copies.
+Current Features:
+- Auto Git Cloning
+- Web UI
 
-Lofty goals for future implementation:
+Goals for future implementation:
 - FTP Server
 - Discord bot
 - Wireshark tracking
